@@ -6,13 +6,15 @@ type Props = {
    node: ITreeNode;
    level?: number;
    onAddNode: (parentId: string, name: string) => Promise<void>;
+   onDeleteNode: (nodeId: string) => Promise<void>;
 };
 
-export const TreeNode = ({ node, level = 0, onAddNode }: Props) => {
+export const TreeNode = ({ node, level = 0, onAddNode, onDeleteNode }: Props) => {
    const [expanded, setExpanded] = useState(false);
    const [isAdding, setIsAdding] = useState(false);
    const [newNodeName, setNewNodeName] = useState("");
    const [isSubmitting, setIsSubmitting] = useState(false);
+   const [isDeleting, setIsDeleting] = useState(false);
 
    const hasChildren = node.children && node.children.length > 0;
 
@@ -28,6 +30,16 @@ export const TreeNode = ({ node, level = 0, onAddNode }: Props) => {
          setIsSubmitting(false);
       }
    };
+
+   const handleDelete = async () => {
+      setIsDeleting(true);
+      try {
+         await onDeleteNode(node.id);
+         setIsDeleting(false);
+      } finally {
+         setIsSubmitting(false);
+      }
+   }
 
    const paddingLeftBase = level * 24 + 16;
    const linePosition = paddingLeftBase + 12;
@@ -78,11 +90,12 @@ export const TreeNode = ({ node, level = 0, onAddNode }: Props) => {
                   <button
                      onClick={(e) => {
                         e.stopPropagation();
+                        handleDelete()
                      }}
                      className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-400 transition-colors"
                      title="Add child node"
                   >
-                     <TrashIcon className="w-4 h-4" />
+                     {isDeleting ? <SpinnerIcon className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
                   </button>
                </div>
             </div>
@@ -141,6 +154,7 @@ export const TreeNode = ({ node, level = 0, onAddNode }: Props) => {
                         node={child}
                         level={level + 1}
                         onAddNode={onAddNode}
+                        onDeleteNode={onDeleteNode}
                      />
                   ))}
                </div>

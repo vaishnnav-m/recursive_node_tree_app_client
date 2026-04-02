@@ -12,3 +12,8 @@ export const getTree = async (): Promise<ApiResponse<ITreeNode[]>> => {
    const res = await axiosInstance.get("/nodes")
    return res.data;
 }
+
+export const deleteNode = async (nodeId: string): Promise<ApiResponse<ITreeNode[]>> => {
+   const res = await axiosInstance.delete(`/nodes/${nodeId}`)
+   return res.data;
+}
