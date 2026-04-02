@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ITreeNode } from "../types/node.types";
 import { ChevronRightIcon, ChevronDownIcon, FolderFilledIcon, PlusIcon, TrashIcon, SpinnerIcon } from "./Icons";
+import { toast } from "react-toastify";
 
 type Props = {
    node: ITreeNode;
@@ -19,7 +20,10 @@ export const TreeNode = ({ node, level = 0, onAddNode, onDeleteNode }: Props) =>
    const hasChildren = node.children && node.children.length > 0;
 
    const handleAddSubmit = async () => {
-      if (!newNodeName.trim()) return;
+      if (!newNodeName.trim()) {
+         toast.warning("Folder name cannot be empty");
+         return;
+      }
       setIsSubmitting(true);
       try {
          await onAddNode(node.id, newNodeName);

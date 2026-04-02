@@ -3,6 +3,7 @@ import { createNode, deleteNode, getTree } from "./api/node.api";
 import type { ITreeNode } from "./types/node.types";
 import { TreeNode } from "./components/TreeNode";
 import { PlusIcon, SpinnerIcon } from "./components/Icons";
+import { toast } from "react-toastify";
 
 function App() {
   const [name, setName] = useState("");
@@ -17,6 +18,9 @@ function App() {
       if (data.data) {
         setTree(data.data);
       }
+    } catch (error) {
+      toast.error("Failed to load tree");
+      console.log(error);
     } finally {
       setIsLoadingTree(false);
     }
@@ -28,13 +32,18 @@ function App() {
 
   // Create a root node
   async function handleSubmit() {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      toast.warning("Folder name cannot be empty");
+      return;
+    }
     setIsSubmitting(true);
     try {
       await createNode(name, null);
+      toast.success("Root folder created");
       setName("");
       await fetchTree();
     } catch (error) {
+      toast.error("Failed to create root folder");
       console.log(error);
     } finally {
       setIsSubmitting(false);
@@ -45,8 +54,10 @@ function App() {
   const handleAddNode = async (parentId: string, nodeName: string) => {
     try {
       await createNode(nodeName, parentId);
+      toast.success("Folder added successfully");
       await fetchTree();
     } catch (error) {
+      toast.error("Failed to add folder");
       console.log(error);
     }
   };
@@ -55,8 +66,10 @@ function App() {
   const handleDeleteNode = async (nodeId: string) => {
     try {
       await deleteNode(nodeId);
+      toast.success("Folder deleted successfully");
       await fetchTree();
     } catch (error) {
+      toast.error("Failed to delete folder");
       console.log(error);
     }
   };
